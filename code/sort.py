@@ -23,8 +23,8 @@ def m_sort(list_of_objs, size, comparator):
 		# pass the minimum of the two to the final list using
 		# a custom comparator
 
-		smallest = comparator(l_val, r_val)
-		if smallest == l_val:
+		next_val = comparator(l_val, r_val)
+		if next_val == l_val:
 			list_of_objs[k] = l_val
 			i += 1
 		else:
@@ -45,12 +45,11 @@ def m_sort(list_of_objs, size, comparator):
 
 	return list_of_objs
 
+# default int comparator for ints, mergesort
 def int_min(val_1, val_2):
 	if val_1 < val_2:
 		return val_1
 	else:
 		return val_2
 
-
-if __name__ == '__main__':
 	
