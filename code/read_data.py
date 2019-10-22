@@ -1,9 +1,8 @@
 from classes import *
 
-# read the constraints file, parse data by lines, return a list of strings, 
+# read the constraints file, parse data by lines, return a list of strings,
 # where each line is a separate string
 def read_const_data(file_name):
-	#read the file contents
 	with open(file_name, 'r') as f:
 		lines = f.readlines()
 	return lines
@@ -26,8 +25,8 @@ def build_room_objs(num_rooms, lines):
 	return room_objs	
 
 
-# given the number of timeslots and the list of sorted rooms, create a list of
-# timeslot objects
+# given the number of timeslots and the list of sorted rooms, create list
+# of timeslot objects
 def build_ts_objs(num_ts, room_objs):
 	ts_objs = [] 
 	for i in range(1, num_timeslots): 

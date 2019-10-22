@@ -1,0 +1,20 @@
+Preprocessing:
+	1) From constraints list, produce a list of Course, Professor, Timeslot
+		and Room Objects
+	2) From student preference list, produce a list of Student Objects
+	3) Sort Professors by popularity, where popularity is the sum of the
+		enrollment size of both classes
+	4) Sort Rooms by size
+	
+Main:
+	1) Assign Students to Courses, no limit on size yet
+	2) Assign Rooms to Timeslots (arbitrarily)
+	
+	For each professor in sorted_list_of_professors:
+		For each unassigned class of that professor:
+			next_time_slot = ts with most # of open rooms
+			if professor available at next_time_slot:
+				assign professor class to next_time_slot
+				remove student overflow
+				(overflow = students - roomsize) 
+	return schedule(object)
