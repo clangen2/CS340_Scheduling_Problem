@@ -30,7 +30,7 @@ class Professor(object):
 		self.cl_2 = course
 
 	# return popularity, defined by the sum of the popularity (popl)
-	# of the two classes 	
+	# of the two classes
 	def get_pop(self):
 		if self.cl_1 and self.cl_2:
 			popl = self.cl_1.popl + self.cl_2.popl
@@ -38,9 +38,9 @@ class Professor(object):
 		else:
 			return 0
 
-	# comparison based off of popularity	
+	# comparison based off of popularity
 	def __lt__(self, other):
-		return self.get_pop() < other.get_pop() 
+		return self.get_pop() < other.get_pop()
 
 	def __gt__(self, other):
 		return self.get_pop() > other.get_pop()
@@ -61,14 +61,14 @@ class Professor(object):
 		course_1 = str(self.cl_1)
 		course_2 = str(self.cl_2)
 		name = str(self.name)
-		return 'Professor: ' + name + ' c1: ' + course_1 + ' c2: '+ course_2 
-	
+		return 'Professor: ' + name + ' c1: ' + course_1 + ' c2: '+ course_2
+
 class Student(object):
 
-	
+
 	def __init__(self, name, pref_list): #next_student
 		self.name = name
-		self.prefs = pref_list #list of four courses by name 
+		self.prefs = pref_list #list of four courses by name
 		self.courses = [] #list of enrolled courses
 		self.enrolled = 0
 
@@ -76,19 +76,21 @@ class Student(object):
 		self.courses.append(course)
 		self.enrolled += 1
 
-	# constant time at worst 4 lookups 
+	# constant time at worst 4 lookups
 	def is_preference(self, course):
 		return course in self.prefs
-		
+
+	def __repr__(self):
+		return "Student: " + str(self.name) + " prefrences " + str(self.prefs)
 
 
 class Timeslot(object):
-	
+
 	def __init__(self, name, rooms):
 		self.name = name
 		self.rooms = rooms
 		self.open = len(rooms)
-	
+
 	def close_room(self):
 		if (self.open - 1) >= 0:
 			self.open -= 1
@@ -101,10 +103,10 @@ class Timeslot(object):
 	def __repr__(self):
 		return str(('Timeslot ' + str(self.name), \
 		'Rooms: ' + str(self.rooms), \
-		'open slots: ' + str(self.open)))		
+		'open slots: ' + str(self.open)))
 
 class Room(object):
-		
+
 	def __init__(self, name, size):
 		self.name = name
 		self.size = size
@@ -116,7 +118,7 @@ class Room(object):
 
 
 
-	# comparison suite for Room objects	
+	# comparison suite for Room objects
 	def __lt__(self, other):
 		return self.size < other.size
 
@@ -132,16 +134,16 @@ class Room(object):
 	def __eq__(self, other):
 		if type(self) == type(other):
 			return self.size == other.size
-		return False		
+		return False
 
 	def __ne__(self, other):
-		return self.size != other.size	
+		return self.size != other.size
 
 	def __repr__(self):
 		return str((self.size, self.size, self.courses))
-	
+
 class Course(object):
-	
+
 	def __init__(self, name):
 		self.name = name
 		self.prof = None
@@ -149,17 +151,17 @@ class Course(object):
 		self.time = None #when course is taught
 		self.room = None #what room class is taught
 
-	def set_popl(self, num_students):
-		self.popl = num_students
+	def increment_popl(self):
+		self.popl += 1
 
 	# time is the name of a tiimeslot object
 	def set_time(self, time_obj):
-		self.time = time_obj 
+		self.time = time_obj
 
 	# room is the name of a room object
 	def set_room(self, room_obj):
 		self.room = room_obj
-	
+
 
 	# comparison suite for Course objects
 	def __lt__(self, other):
@@ -181,7 +183,6 @@ class Course(object):
 
 	def __ne__(self, other):
 		return self.popl != other.popl
-		
+
 	def __repr__(self):
 		return str(self.name)
-
