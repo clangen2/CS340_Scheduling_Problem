@@ -1,2 +1,2 @@
 #!/bin/sh
-java MyMain $1 $2 $3
+python3 main.py constraints.txt student_prefs.txt schedule.out

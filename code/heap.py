@@ -15,13 +15,13 @@ class Heap(object):
 		self.heapify_up()
 		
 
-	def _heapify_up(self, index):
-		while index > 1:
-			child = self.heap[index]
-			parent = self.heap[index//2]
+	def _heapify_up(self, child_index):
+		heap, compare = self.heap, self.compare
+		while child_index > 0:
+			child = heap[child_index]
+			parent = heap[child_index // 2]
 			if child < parent:
-				
-				
-			
+				return
+			parent, child = child, parent				
 
 	def _heapify_down 

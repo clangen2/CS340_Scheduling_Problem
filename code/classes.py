@@ -1,12 +1,13 @@
-# CS340 Project Classes Implementation
-# Russell Rivera
-# 10/19/2019
-
+# CS340 Scheduling Problem
+# Russell Rivera, Alton Wiggers, Carter Langen, Andy Hong
+# classes.py
+# File of all classes used 
 
 class Professor(object):
 
-	# name is the number designated to a teacher, c1, c2 are the names
-	# of class objects
+	# name is the number designated to a teacher, c1, c2 are
+	# the names of (pointers to) class objects
+	# note: ts_1 corresponds to cl_1, etc
 	def __init__(self, name):
 		self.name = name
 		self.cl_1 = None
@@ -14,25 +15,32 @@ class Professor(object):
 		self.ts_1 = None
 		self.ts_2 = None
 
-	def set_ts1(self, time):
-		self.ts_1 = time
-
-	def set_ts2(self, time):
-		if self.ts_1 != time:
-			self.ts_2 = time
-			return 0 #valid
+	# set a timeslot attribute, if both courses are full, return
+	# False, there is an invalid scheduling, if ts_1 full, then
+	# add to ts_2 attribute
+	def set_ts(self, time_obj):
+		if self.ts_1 and self.ts_2:
+			return False
 		else:
-			return -1 #invalid timeslot, should never happen
+			if self.ts_1:
+				self.ts_2 = time_obj
+			self.ts_1 = time_obj
+		return True
 
-	def set_cl(self, course):
-		if self.cl_1 == None:
-			self.cl_1 = course
-		self.cl_2 = course
-
-	# return popularity, defined by the sum of the popularity (popl)
-	# of the two classes
-	def get_pop(self):
+	# set a course, if cl_1 = course 1 is full, then add to the
+	# cl_2 attribute
+	def set_cl(self, course_obj):
 		if self.cl_1 and self.cl_2:
+			return False
+		else:
+			if self.cl_1:
+				self.cl_2 = course_obj
+			else:
+				self.cl_1 = course_obj
+		return True
+
+	def get_pop(self):
+		if self.cl_1.popl and self.cl_2.popl:
 			popl = self.cl_1.popl + self.cl_2.popl
 			return popl
 		else:
@@ -58,52 +66,50 @@ class Professor(object):
 		return self.get_pop() != other.get_pop()
 
 	def __repr__(self):
-		course_1 = str(self.cl_1)
-		course_2 = str(self.cl_2)
-		name = str(self.name)
-		return 'Professor: ' + name + ' c1: ' + course_1 + ' c2: '+ course_2
+		return 'Professor ' + str(self.name)
+
 
 class Student(object):
-
 
 	def __init__(self, name, pref_list): #next_student
 		self.name = name
 		self.prefs = pref_list #list of four courses by name
-		self.courses = [] #list of enrolled courses
+		self.courses_taken = [] #list of enrolled courses (objs)
 		self.enrolled = 0
 
-	def enroll(self, course):
-		self.courses.append(course)
+	# add a course obj to courses list (list of enrolled courses) 
+	def enroll_in(self, course_obj):
+		self.courses_taken.append(course_obj)
 		self.enrolled += 1
 
 	# constant time at worst 4 lookups
-	def is_preference(self, course):
-		return course in self.prefs
+	def is_preference(self, course_obj):
+		return course_obj.name in self.prefs
 
 	def __repr__(self):
-		return "Student: " + str(self.name) + " prefrences " + str(self.prefs)
+		return 'Student ' + str(self.name)
 
 
 class Timeslot(object):
 
-	def __init__(self, name, rooms):
+	def __init__(self, name, list_of_room_objs):
 		self.name = name
-		self.rooms = rooms
-		self.open = len(rooms)
+		self.rooms = list_of_room_objs
+		self.open = len(list_of_room_objs)
 
 	def close_room(self):
 		if (self.open - 1) >= 0:
 			self.open -= 1
 		else:
-			return -1 #invalid, all rooms in self.rooms have been used
+			return False
+			 #invalid all rooms in self.rooms used
 
 	def __eq__(self, other):
 		return self.name == other.name
 
 	def __repr__(self):
-		return str(('Timeslot ' + str(self.name), \
-		'Rooms: ' + str(self.rooms), \
-		'open slots: ' + str(self.open)))
+		return 'Timeslot ' + str(self.name)
+
 
 class Room(object):
 
@@ -112,11 +118,8 @@ class Room(object):
 		self.size = size
 		self.courses = set()
 
-
-	def set_course(self, course_name):
-		self.courses.add(course_name)
-
-
+	def set_course(self, course):
+		self.courses.add(course)
 
 	# comparison suite for Room objects
 	def __lt__(self, other):
@@ -140,14 +143,15 @@ class Room(object):
 		return self.size != other.size
 
 	def __repr__(self):
-		return str((self.size, self.size, self.courses))
+		return 'Room ' + str(self.name)		
+
 
 class Course(object):
 
 	def __init__(self, name):
 		self.name = name
 		self.prof = None
-		self.popl = 0 #num of students that want to take the class
+		self.popl = 0 #num students that want to take the class
 		self.time = None #when course is taught
 		self.room = None #what room class is taught
 
@@ -162,6 +166,9 @@ class Course(object):
 	def set_room(self, room_obj):
 		self.room = room_obj
 
+	# professor is a professor obj
+	def set_prof(self, professor_obj):
+		self.prof = professor_obj
 
 	# comparison suite for Course objects
 	def __lt__(self, other):
@@ -185,4 +192,4 @@ class Course(object):
 		return self.popl != other.popl
 
 	def __repr__(self):
-		return str(self.name)
+		return 'Course ' + str(self.name)
