@@ -1,7 +1,7 @@
 # CS340 Scheduling Problem
 # Russell Rivera, Alton Wiggers, Carter Langen, Andy Hong
 # classes.py
-# File of all classes used 
+# File of all classes used
 
 class Professor(object):
 
@@ -77,7 +77,7 @@ class Student(object):
 		self.courses_taken = [] #list of enrolled courses (objs)
 		self.enrolled = 0
 
-	# add a course obj to courses list (list of enrolled courses) 
+	# add a course obj to courses list (list of enrolled courses)
 	def enroll_in(self, course_obj):
 		self.courses_taken.append(course_obj)
 		self.enrolled += 1
@@ -101,6 +101,7 @@ class Timeslot(object):
 		if (self.open - 1) >= 0:
 			self.open -= 1
 		else:
+			print("assigned to empty timeslot")
 			return False
 			 #invalid all rooms in self.rooms used
 
@@ -143,7 +144,7 @@ class Room(object):
 		return self.size != other.size
 
 	def __repr__(self):
-		return 'Room ' + str(self.name)		
+		return 'Room ' + str(self.name)
 
 
 class Course(object):
@@ -152,11 +153,15 @@ class Course(object):
 		self.name = name
 		self.prof = None
 		self.popl = 0 #num students that want to take the class
+		self.enrollment = 0 #num students enrolled
 		self.time = None #when course is taught
 		self.room = None #what room class is taught
 
 	def increment_popl(self):
 		self.popl += 1
+
+	def increment_enroll(self):
+		self.enrollment += 1
 
 	# time is the name of a tiimeslot object
 	def set_time(self, time_obj):
