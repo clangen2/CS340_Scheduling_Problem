@@ -123,9 +123,9 @@ def build_all_objs(constraints_file, preference_file):
 	#open the constraint file and the prefrence_list file
 	lines = read_data(constraints_file)
 	preference_lists = read_data(preference_file)
-
 	#parse data from files to feed to functions
-	num_timeslots = int(lines[0][-2])
+	num_timeslots = int(lines[0].split('\t')[1][:-1])
+	# parse data for number of rooms
 	num_rooms = int(lines[1][6:-1])
 	#print(int(lines[1][6:-1]))
 	num_courses = int(lines[2 + num_rooms][8:-1])

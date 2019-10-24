@@ -150,7 +150,7 @@ while (<SCHED>) {
 
 
 print "Schedule is valid.\n";
-print "Student preferences value: ", $stuprefs;
+print "Student preferences value: ", $stuprefs, "\n";
 
 exit 0;
 

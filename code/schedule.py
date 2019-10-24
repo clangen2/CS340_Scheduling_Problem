@@ -19,19 +19,8 @@ def schedule(constraints, student_pref, output_file):
 		to enroll in both of that professor's classes.
 	'''
 
-	'''
-	PLEASE READ OBJ_INIT to see which attributes are already initialized.
-	Professors and classes are already attributes of each other, but not
-	much else is. Please make sure you do not update an attribute
-	unnecessarily.
-
-	I have not implemented the heap yet, but I cannot do any more today,
-	I am confident you can figure out the rest with what I have.
-
-	-R
-	'''
 	slotNum = 0
-	slotMax = len(Timeslots)
+	slotMax = len(Timeslots) - 1
 
 	for professor in Professors:
 		slot = Timeslots[slotNum]
@@ -44,7 +33,7 @@ def schedule(constraints, student_pref, output_file):
 		if slotNum >= slotMax:
 			slotNum = 0
 
-		slot = Timeslots[slotNum]
+		slot = Timeslots[slotNum] # changed here
 		professor.set_ts(slot)
 		cl = professor.cl_2
 		cl.set_time(slot)
