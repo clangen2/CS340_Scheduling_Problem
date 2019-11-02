@@ -72,21 +72,20 @@ def assignSlot(cl, badTime, Timeslots):
 	for time in Timeslots:
 		#check if professor is already teaching
 		if not time == badTime:
-			if time.open >= openRooms:
-				#immediately choose a timeslot if it has more open rooms than others checked
-				if time.open > openRooms:
-					openRooms = time.open
-					compatibility,compatibleStuds = checkCompatibility(time, cl)
+			#immediately choose a timeslot if it has more open rooms than others checked
+			if time.open > openRooms:
+				openRooms = time.open
+				compatibility,compatibleStuds = checkCompatibility(time, cl)
+				slot = time
+				openRooms = time.open
+				#if equal rooms to other times checked, compare compatibility
+			else:
+				newComp,newStuds = checkCompatibility(time, cl)
+				if newComp > compatibility:
+					compatibility = newComp
+					compatibleStuds = newStuds
 					slot = time
 					openRooms = time.open
-				#if equal rooms to other times checked, compare compatibility
-				else:
-					newComp,newStuds = checkCompatibility(time, cl)
-					if newComp > compatibility:
-						compatibility = newComp
-						compatibleStuds = newStuds
-						slot = time
-						openRooms = time.open
 	#set timeslot
 	cl.set_time(slot)
 	cl.set_room(slot.rooms[slot.open - 1])
