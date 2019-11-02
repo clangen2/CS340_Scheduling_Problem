@@ -79,7 +79,7 @@ def assignSlot(cl, badTime, Timeslots):
 				slot = time
 				openRooms = time.open
 				#if equal rooms to other times checked, compare compatibility
-			else:
+			elif time.open == openRooms:
 				newComp,newStuds = checkCompatibility(time, cl)
 				if newComp > compatibility:
 					compatibility = newComp
