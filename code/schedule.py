@@ -24,8 +24,6 @@ def schedule(constraints, student_pref, output_file):
 		assignSlot(professor.cl_1, None, Timeslots, Courses, Students)
 
 		assignSlot(professor.cl_2, professor.cl_1.time, Timeslots, Courses, Students)
-		
-
 
 	#format output
 	output = []
@@ -41,26 +39,6 @@ def schedule(constraints, student_pref, output_file):
 			for j in range(Courses[i-1].enrollment):
 				output[i] += str(Courses[i-1].students[j]) + " "
 			
-	'''
-	for student in Students:
-		#for each preferred class
-		for i in range(3):
-			conflict = False
-			#do not enroll if conflicts with already enrolled classes
-			for j in range(len(student.courses_taken)):
-				if Courses[student.prefs[i] - 1].time == Courses[student.courses_taken[j] - 1].time:
-					conflict = True
-			#do not enroll if class is full
-			if Courses[student.prefs[i] - 1].enrollment >= Courses[student.prefs[i] - 1].room.size:
-				conflict = True
-			if not conflict:
-				#add class to enrolled classes
-				student.enroll_in(student.prefs[i])
-				Courses[student.prefs[i] - 1].increment_enroll()
-				#add to output file
-				output[student.prefs[i]] += str(student.name) + " "
-
-	'''
 	outString = ""
 	for i in range(len(output)):
 		outString += output[i] + "\n"
@@ -69,6 +47,7 @@ def schedule(constraints, student_pref, output_file):
 	f.write(outString)
 	f.close()
 
+# assigns a course to a timeslot and a room, enrolls students in the course
 def assignSlot(cl, badTime, Timeslots, Courses, Students):
 	slot = None
 	openRooms = 0
@@ -76,7 +55,7 @@ def assignSlot(cl, badTime, Timeslots, Courses, Students):
 	compatibleStuds = []
 	for time in Timeslots:
 		#check if professor is already teaching
-		if not time == badTime:
+		if time != badTime:
 			#immediately choose a timeslot if it has more open rooms than others checked
 			if time.open > openRooms:
 				openRooms = time.open
@@ -107,7 +86,7 @@ def assignSlot(cl, badTime, Timeslots, Courses, Students):
 			cl.enrollment +=1
 	
 
-
+# generate a list of compatible students
 def checkCompatibility(time, cl):
 	compatibility = 0
 	compatibleStuds = []
