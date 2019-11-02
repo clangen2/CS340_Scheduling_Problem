@@ -19,16 +19,13 @@ def schedule(constraints, student_pref, output_file):
 		to enroll in both of that professor's classes.
 	'''
 
-	slotNum = 0
-	slotMax = len(Timeslots)
-
 	for professor in Professors:
+		#assign timeslots and rooms for both classes
 		assignSlot(professor.cl_1, None, Timeslots)
 
 		assignSlot(professor.cl_2, professor.cl_1.time, Timeslots)
-		print(str(professor.cl_1.time) + str(professor.cl_2.time))
 
-
+	#format output
 	output = []
 	for i in range(len(Courses)+1):
 		if i==0:
@@ -39,20 +36,24 @@ def schedule(constraints, student_pref, output_file):
 			output[i] += "\t" + str(Courses[i-1].room.name)
 			output[i] += "\t" + str(Courses[i-1].prof.name)
 			output[i] += "\t" + str(Courses[i-1].time.name) + "\t"
-			for j in range(Courses[i-1].enrollment):
-				output[i] += str(Courses[i-1].students[j]) + " "
-
+			
+	
 	for student in Students:
+		#for each preferred class
 		for i in range(3):
 			conflict = False
+			#do not enroll if conflicts with already enrolled classes
 			for j in range(len(student.courses_taken)):
 				if Courses[student.prefs[i] - 1].time == Courses[student.courses_taken[j] - 1].time:
 					conflict = True
+			#do not enroll if class is full
 			if Courses[student.prefs[i] - 1].enrollment >= Courses[student.prefs[i] - 1].room.size:
 				conflict = True
 			if not conflict:
+				#add class to enrolled classes
 				student.enroll_in(student.prefs[i])
 				Courses[student.prefs[i] - 1].increment_enroll()
+				#add to output file
 				output[student.prefs[i]] += str(student.name) + " "
 
 	outString = ""
@@ -69,13 +70,16 @@ def assignSlot(cl, badTime, Timeslots):
 	compatibility = 0
 	compatibleStuds = []
 	for time in Timeslots:
+		#check if professor is already teaching
 		if not time == badTime:
 			if time.open >= openRooms:
+				#immediately choose a timeslot if it has more open rooms than others checked
 				if time.open > openRooms:
 					openRooms = time.open
 					compatibility,compatibleStuds = checkCompatibility(time, cl)
 					slot = time
 					openRooms = time.open
+				#if equal rooms to other times checked, compare compatibility
 				else:
 					newComp,newStuds = checkCompatibility(time, cl)
 					if newComp > compatibility:
@@ -83,7 +87,7 @@ def assignSlot(cl, badTime, Timeslots):
 						compatibleStuds = newStuds
 						slot = time
 						openRooms = time.open
-
+	#set timeslot
 	cl.set_time(slot)
 	cl.set_room(slot.rooms[slot.open - 1])
 	slot.close_room()
@@ -93,6 +97,7 @@ def checkCompatibility(time, cl):
 	compatibility = 0
 	compatibleStuds = []
 	for student in cl.students:
+		#check if student is potentially assigned to that timeslot
 		if not time.students[student - 1]:
 			compatibility += 1
 			compatibleStuds.append(student)
