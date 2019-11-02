@@ -54,14 +54,18 @@ def schedule(constraints, student_pref, output_file):
 			output[i] += "\t" + str(Courses[i-1].prof.name)
 			output[i] += "\t" + str(Courses[i-1].time.name) + "\t"
 
-	for student in Students:
-		for i in range(3):
+	#for classes in preference list
+	for i in range(3):
+		for student in Students:
 			conflict = False
+			#check conflict with enrolled classes
 			for j in range(len(student.courses_taken)):
 				if Courses[student.prefs[i] - 1].time == Courses[student.courses_taken[j] - 1].time:
 					conflict = True
+			#check if class is full
 			if Courses[student.prefs[i] - 1].enrollment >= Courses[student.prefs[i] - 1].room.size:
 				conflict = True
+			#if neither, join class
 			if not conflict:
 				student.enroll_in(student.prefs[i])
 				Courses[student.prefs[i] - 1].increment_enroll()
