@@ -21,9 +21,11 @@ def schedule(constraints, student_pref, output_file):
 
 	for professor in Professors:
 		#assign timeslots and rooms for both classes
-		assignSlot(professor.cl_1, None, Timeslots)
+		assignSlot(professor.cl_1, None, Timeslots, Courses, Students)
 
-		assignSlot(professor.cl_2, professor.cl_1.time, Timeslots)
+		assignSlot(professor.cl_2, professor.cl_1.time, Timeslots, Courses, Students)
+		
+
 
 	#format output
 	output = []
@@ -36,8 +38,10 @@ def schedule(constraints, student_pref, output_file):
 			output[i] += "\t" + str(Courses[i-1].room.name)
 			output[i] += "\t" + str(Courses[i-1].prof.name)
 			output[i] += "\t" + str(Courses[i-1].time.name) + "\t"
+			for j in range(Courses[i-1].enrollment):
+				output[i] += str(Courses[i-1].students[j]) + " "
 			
-	
+	'''
 	for student in Students:
 		#for each preferred class
 		for i in range(3):
@@ -56,6 +60,7 @@ def schedule(constraints, student_pref, output_file):
 				#add to output file
 				output[student.prefs[i]] += str(student.name) + " "
 
+	'''
 	outString = ""
 	for i in range(len(output)):
 		outString += output[i] + "\n"
@@ -64,7 +69,7 @@ def schedule(constraints, student_pref, output_file):
 	f.write(outString)
 	f.close()
 
-def assignSlot(cl, badTime, Timeslots):
+def assignSlot(cl, badTime, Timeslots, Courses, Students):
 	slot = None
 	openRooms = 0
 	compatibility = 0
@@ -78,7 +83,7 @@ def assignSlot(cl, badTime, Timeslots):
 				compatibility,compatibleStuds = checkCompatibility(time, cl)
 				slot = time
 				openRooms = time.open
-				#if equal rooms to other times checked, compare compatibility
+			#if equal rooms to other times checked, compare compatibility
 			elif time.open == openRooms:
 				newComp,newStuds = checkCompatibility(time, cl)
 				if newComp > compatibility:
@@ -90,6 +95,17 @@ def assignSlot(cl, badTime, Timeslots):
 	cl.set_time(slot)
 	cl.set_room(slot.rooms[slot.open - 1])
 	slot.close_room()
+	cl.students = []
+	for student in compatibleStuds:
+		conflict = False
+		for j in range(len(Students[student - 1].courses_taken)):
+			if Courses[Students[student - 1].courses_taken[j].name - 1].time == slot:
+				conflict = True
+		if not conflict and not cl.enrollment >= cl.room.size:
+			Students[student - 1].enroll_in(cl)
+			cl.students.append(student)
+			cl.enrollment +=1
+	
 
 
 def checkCompatibility(time, cl):
