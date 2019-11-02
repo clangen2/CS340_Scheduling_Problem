@@ -96,6 +96,7 @@ class Timeslot(object):
 		self.name = name
 		self.rooms = list_of_room_objs
 		self.open = len(list_of_room_objs)
+		self.students = {}
 
 	def close_room(self):
 		if (self.open - 1) >= 0:
@@ -106,7 +107,10 @@ class Timeslot(object):
 			 #invalid all rooms in self.rooms used
 
 	def __eq__(self, other):
-		return self.name == other.name
+		if other == None:
+			return False
+		else:
+			return self.name == other.name
 
 	def __repr__(self):
 		return 'Timeslot ' + str(self.name)
@@ -153,6 +157,7 @@ class Course(object):
 		self.name = name
 		self.prof = None
 		self.popl = 0 #num students that want to take the class
+		self.students = []
 		self.enrollment = 0 #num students enrolled
 		self.time = None #when course is taught
 		self.room = None #what room class is taught

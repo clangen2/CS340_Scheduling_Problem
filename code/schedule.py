@@ -20,28 +20,14 @@ def schedule(constraints, student_pref, output_file):
 	'''
 
 	slotNum = 0
-	slotMax = len(Timeslots) - 1
+	slotMax = len(Timeslots)
 
 	for professor in Professors:
-		slot = Timeslots[slotNum]
-		professor.set_ts(slot)
-		cl = professor.cl_1
-		cl.set_time(slot)
-		cl.set_room(slot.rooms[slot.open - 1])
-		slot.close_room()
-		slotNum += 1
-		if slotNum >= slotMax:
-			slotNum = 0
+		assignSlot(professor.cl_1, None, Timeslots)
 
-		slot = Timeslots[slotNum] # changed here
-		professor.set_ts(slot)
-		cl = professor.cl_2
-		cl.set_time(slot)
-		cl.set_room(slot.rooms[slot.open - 1])
-		slot.close_room()
-		slotNum += 1
-		if slotNum >= slotMax:
-			slotNum = 0
+		assignSlot(professor.cl_2, professor.cl_1.time, Timeslots)
+		print(str(professor.cl_1.time) + str(professor.cl_2.time))
+
 
 	output = []
 	for i in range(len(Courses)+1):
@@ -53,19 +39,17 @@ def schedule(constraints, student_pref, output_file):
 			output[i] += "\t" + str(Courses[i-1].room.name)
 			output[i] += "\t" + str(Courses[i-1].prof.name)
 			output[i] += "\t" + str(Courses[i-1].time.name) + "\t"
+			for j in range(Courses[i-1].enrollment):
+				output[i] += str(Courses[i-1].students[j]) + " "
 
-	#for classes in preference list
-	for i in range(3):
-		for student in Students:
+	for student in Students:
+		for i in range(3):
 			conflict = False
-			#check conflict with enrolled classes
 			for j in range(len(student.courses_taken)):
 				if Courses[student.prefs[i] - 1].time == Courses[student.courses_taken[j] - 1].time:
 					conflict = True
-			#check if class is full
 			if Courses[student.prefs[i] - 1].enrollment >= Courses[student.prefs[i] - 1].room.size:
 				conflict = True
-			#if neither, join class
 			if not conflict:
 				student.enroll_in(student.prefs[i])
 				Courses[student.prefs[i] - 1].increment_enroll()
@@ -78,3 +62,38 @@ def schedule(constraints, student_pref, output_file):
 	f = open(output_file,"w+")
 	f.write(outString)
 	f.close()
+
+def assignSlot(cl, badTime, Timeslots):
+	slot = None
+	openRooms = 0
+	compatibility = 0
+	compatibleStuds = []
+	for time in Timeslots:
+		if not time == badTime:
+			if time.open >= openRooms:
+				if time.open > openRooms:
+					openRooms = time.open
+					compatibility,compatibleStuds = checkCompatibility(time, cl)
+					slot = time
+					openRooms = time.open
+				else:
+					newComp,newStuds = checkCompatibility(time, cl)
+					if newComp > compatibility:
+						compatibility = newComp
+						compatibleStuds = newStuds
+						slot = time
+						openRooms = time.open
+
+	cl.set_time(slot)
+	cl.set_room(slot.rooms[slot.open - 1])
+	slot.close_room()
+
+
+def checkCompatibility(time, cl):
+	compatibility = 0
+	compatibleStuds = []
+	for student in cl.students:
+		if not time.students[student - 1]:
+			compatibility += 1
+			compatibleStuds.append(student)
+	return compatibility,compatibleStuds

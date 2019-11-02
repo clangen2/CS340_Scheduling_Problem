@@ -32,10 +32,12 @@ def build_room_objs(num_rooms, const_data):
 # given the number of timeslots and a list of room objects, build a list of
 # timeslot objects initialized with a name, and a pointer to a sorted list of rooms
 # objects
-def build_ts_objs(num_ts, room_objs):
+def build_ts_objs(num_ts, num_s, room_objs):
 	ts_objs = []
 	for i in range(0, num_ts):
 		new_ts_obj = Timeslot(i, room_objs)
+		for j in range(0, num_s):
+			new_ts_obj.students[j] = False
 		ts_objs.append(new_ts_obj)
 	return ts_objs
 
@@ -97,6 +99,7 @@ def course_popularities(Courses, Students):
 		for course in student.prefs: # constant search (only 4 classes)
 			course_num = int(course) - 1 #index of course i in Courses
 			Courses[course_num].increment_popl()
+			Courses[course_num].students.append(student.name)
 
 # helper function for parsing during building professor objects
 def process_pairs(list_of_pairs):
@@ -139,7 +142,7 @@ def build_all_objs(constraints_file, preference_file):
 
 	# build lists
 	Rooms = build_room_objs(num_rooms, lines) #O(num_rooms * log(num_rooms)
-	Timeslots = build_ts_objs(num_timeslots, Rooms) #O(num_timeslots)
+	Timeslots = build_ts_objs(num_timeslots,num_students, Rooms) #O(num_timeslots)
 	Students = build_student_objs(num_students, student_prefs) #O(num_students)
 	Courses = build_course_objs(num_courses) #O(num_courses)
 	course_popularities(Courses, Students) #O(num_students)
