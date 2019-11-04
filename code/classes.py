@@ -75,7 +75,8 @@ class Student(object):
 		self.name = name
 		self.prefs = pref_list #list of four courses by name
 		self.courses_taken = [] #list of enrolled courses (objs)
-		self.enrolled = 0
+		self.enrolled = 0 #number of courses student is enrolled in
+		self.major = None #student major
 
 	# add a course obj to courses list (list of enrolled courses)
 	def enroll_in(self, course_obj):
@@ -157,10 +158,11 @@ class Course(object):
 		self.name = name
 		self.prof = None
 		self.popl = 0 #num students that want to take the class
-		self.students = []
+		self.students = [] #list of students in the class
 		self.enrollment = 0 #num students enrolled
 		self.time = None #when course is taught
 		self.room = None #what room class is taught
+		self.department = None #department of the class
 
 	def increment_popl(self):
 		self.popl += 1

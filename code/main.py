@@ -14,4 +14,4 @@ def get_args():
 if __name__ == '__main__':
 
 	c, s, o = get_args()
-	schedule.schedule(c, s, o)
+	schedule = schedule.Schedule(c,s,o)
