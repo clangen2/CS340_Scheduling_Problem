@@ -40,6 +40,8 @@ class Schedule():
 				self.Students[student - 1].enroll_in(cl)
 				cl.students.append(student)
 				cl.enrollment +=1
+				if self.majorPrefsExt and cl.department == self.Students[student - 1].major:
+					self.majorEnrollment[0] += 1
 
 
 	# generate a list of compatible students
@@ -66,8 +68,15 @@ class Schedule():
 			where popularity is the sum of the students that want
 			to enroll in both of that professor's classes.
 		'''
+		#extensions enabled
+		self.majorPrefsExt = True #major preferences
 
-		self.Rooms, self.Timeslots, self.Students, self.Courses, self.Professors = build_all_objs(constraints, student_pref)
+		#extension values
+		self.majorEnrollment = [0,0] #how many students were enrolled in major classes and how many students wanted major classes
+
+
+		#initialize lists
+		self.Rooms, self.Timeslots, self.Students, self.Courses, self.Professors,self.majorEnrollment[1] = build_all_objs(constraints, student_pref, self.majorPrefsExt)
 
 		for professor in self.Professors:
 			#assign timeslots and rooms for both classes
@@ -91,7 +100,9 @@ class Schedule():
 		outString = ""
 		for i in range(len(output)):
 			outString += output[i] + "\n"
-
 		f = open(output_file,"w+")
 		f.write(outString)
 		f.close()
+
+		if self.majorPrefsExt:
+			print("Major Satisfaction: " + str(self.majorEnrollment[0]) + "/" + str(self.majorEnrollment[1]))

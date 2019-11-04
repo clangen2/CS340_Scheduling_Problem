@@ -71,12 +71,12 @@ class Professor(object):
 
 class Student(object):
 
-	def __init__(self, name, pref_list): #next_student
+	def __init__(self, name, pref_list, major=None): #next_student
 		self.name = name
 		self.prefs = pref_list #list of four courses by name
 		self.courses_taken = [] #list of enrolled courses (objs)
 		self.enrolled = 0 #number of courses student is enrolled in
-		self.major = None #student major
+		self.major = major #student major
 
 	# add a course obj to courses list (list of enrolled courses)
 	def enroll_in(self, course_obj):
@@ -154,7 +154,7 @@ class Room(object):
 
 class Course(object):
 
-	def __init__(self, name):
+	def __init__(self, name, department=None):
 		self.name = name
 		self.prof = None
 		self.popl = 0 #num students that want to take the class
@@ -162,7 +162,7 @@ class Course(object):
 		self.enrollment = 0 #num students enrolled
 		self.time = None #when course is taught
 		self.room = None #what room class is taught
-		self.department = None #department of the class
+		self.department = department #department of the class
 
 	def increment_popl(self):
 		self.popl += 1

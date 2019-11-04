@@ -1,4 +1,5 @@
 from classes import *
+import random
 
 # CS340 Scheduling Problem
 # Russell Rivera, Alton Wiggers, Carter Langen, Andy Hong
@@ -46,7 +47,7 @@ def build_ts_objs(num_ts, num_s, room_objs):
 def build_course_objs(num_courses):
 	course_objs = []
 	for i in range(1, num_courses + 1):
-		new_course_obj = Course(i)
+		new_course_obj = Course(i, random.randint(0,4))
 		course_objs.append(new_course_obj)
 	return course_objs
 
@@ -89,17 +90,24 @@ def build_student_objs(num_students, list_of_students):
 		pref_list = student_pref_pair[1].split()
 		pref_list = list(map(int, pref_list))
 
-		new_student = Student(student_i, pref_list)
+		new_student = Student(student_i, pref_list, random.randint(0,4))
 		Students.append(new_student)
 	return Students
 
 # given a list of students objects, update course popularities for each object
-def course_popularities(Courses, Students):
+def course_popularities(Courses, Students, majorPrefsExt):
+	majorDesire = 0 #value of total major classes wanted by major students
 	for student in Students:
 		for course in student.prefs: # constant search (only 4 classes)
 			course_num = int(course) - 1 #index of course i in Courses
-			Courses[course_num].increment_popl()
-			Courses[course_num].students.append(student.name)
+			Courses[course_num].increment_popl() #increase popularity
+			#put majors at the front of the list
+			if majorPrefsExt and student.major == Courses[course_num].department:
+				Courses[course_num].students.insert(0, student.name)
+				majorDesire +=1
+			else:
+				Courses[course_num].students.append(student.name) #add student to list
+	return majorDesire
 
 # helper function for parsing during building professor objects
 def process_pairs(list_of_pairs):
@@ -110,7 +118,7 @@ def process_pairs(list_of_pairs):
 	return split_p
 
 # build and initialize all lists required to run the algorithm
-def build_all_objs(constraints_file, preference_file):
+def build_all_objs(constraints_file, preference_file, majorPrefsExt):
 	"""
 	This function does the following things:
 	Create: (1) a list of room objects sorted by size, with name, size attributes full
@@ -145,8 +153,8 @@ def build_all_objs(constraints_file, preference_file):
 	Timeslots = build_ts_objs(num_timeslots,num_students, Rooms) #O(num_timeslots)
 	Students = build_student_objs(num_students, student_prefs) #O(num_students)
 	Courses = build_course_objs(num_courses) #O(num_courses)
-	course_popularities(Courses, Students) #O(num_students)
+	majorDesire = course_popularities(Courses, Students, majorPrefsExt) #O(num_students)
 	Professors = build_prof_objs(num_courses, prof_and_courses, Courses) #O(2*num_courses)
 	Professors = sorted(Professors, reverse=True) #(O(num_profs *log(num_profs))
 
-	return Rooms, Timeslots, Students, Courses, Professors
+	return Rooms, Timeslots, Students, Courses, Professors, majorDesire
