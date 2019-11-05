@@ -15,7 +15,7 @@ def read_data(file_name):
 
 # given the number of rooms, and room and roomsize pairs from const data,
 # build a sorted list of room objects initialized with room name/number and size
-def build_room_objs(num_rooms, const_data):
+def build_room_objs(num_rooms, const_data, num_resouces = 0):
 	room_objs = []
 	for i in range(2, num_rooms + 2):
 		#parse rooms and room sizes
@@ -23,8 +23,13 @@ def build_room_objs(num_rooms, const_data):
 		room_and_size = room_and_size.split()
 		room_name = int(room_and_size[0])
 		room_size = int(room_and_size[1])
+		room_resources= [0] * num_resouces
+		if num_resouces > 0:
+			for i in range(num_resouces):
+				if random.random() >= .4: #for the purpose of showing this as a constraint, we will make resources scarce.
+					room_resources[i] = 1
 
-		new_room = Room(room_name, room_size)
+		new_room = Room(room_name, room_size, room_resources)
 		room_objs.append(new_room)
 
 	room_objs.sort()
@@ -44,10 +49,21 @@ def build_ts_objs(num_ts, num_s, room_objs):
 
 # given a list of courses, build a sorted list of course objects initiliazed
 # with name only
-def build_course_objs(num_courses):
+def build_course_objs(num_courses, num_requirements = 0): #num_requirements should be equal to num_resouces for build rooms
 	course_objs = []
+
 	for i in range(1, num_courses + 1):
-		new_course_obj = Course(i, random.randint(0,4))
+		requirements = [0] * num_requirements #a list of num_requirements booleans, all 0. They will become 1 if true
+		 #random.random() = a random float from 0 to 1
+		if num_requirements > 0:
+			for j in range(num_requirements):
+				if random.random() >= .5: #most classes should want about 50% of the resources we can provide
+					requirements[j] = 1
+
+
+		new_course_obj = Course(i, random.randint(0,29), requirements)
+		#print(new_course_obj)
+		#print(new_course_obj.requirements)
 		course_objs.append(new_course_obj)
 	return course_objs
 
@@ -90,7 +106,7 @@ def build_student_objs(num_students, list_of_students):
 		pref_list = student_pref_pair[1].split()
 		pref_list = list(map(int, pref_list))
 
-		new_student = Student(student_i, pref_list, random.randint(0,4))
+		new_student = Student(student_i, pref_list, None)
 		Students.append(new_student)
 	return Students
 
@@ -98,6 +114,7 @@ def build_student_objs(num_students, list_of_students):
 def course_popularities(Courses, Students, majorPrefsExt):
 	majorDesire = 0 #value of total major classes wanted by major students
 	for student in Students:
+		student.major = Courses[student.prefs[0] -1].department #assign student major to their first preferred class
 		for course in student.prefs: # constant search (only 4 classes)
 			course_num = int(course) - 1 #index of course i in Courses
 			Courses[course_num].increment_popl() #increase popularity
@@ -118,7 +135,7 @@ def process_pairs(list_of_pairs):
 	return split_p
 
 # build and initialize all lists required to run the algorithm
-def build_all_objs(constraints_file, preference_file, majorPrefsExt):
+def build_all_objs(constraints_file, preference_file, majorPrefsExt, num_resouces):
 	"""
 	This function does the following things:
 	Create: (1) a list of room objects sorted by size, with name, size attributes full
@@ -149,10 +166,10 @@ def build_all_objs(constraints_file, preference_file, majorPrefsExt):
 	#print(preference_lists[1:])
 
 	# build lists
-	Rooms = build_room_objs(num_rooms, lines) #O(num_rooms * log(num_rooms)
+	Rooms = build_room_objs(num_rooms, lines, num_resouces) #O(num_rooms * log(num_rooms)
 	Timeslots = build_ts_objs(num_timeslots,num_students, Rooms) #O(num_timeslots)
 	Students = build_student_objs(num_students, student_prefs) #O(num_students)
-	Courses = build_course_objs(num_courses) #O(num_courses)
+	Courses = build_course_objs(num_courses, num_resouces) #O(num_courses)
 	majorDesire = course_popularities(Courses, Students, majorPrefsExt) #O(num_students)
 	Professors = build_prof_objs(num_courses, prof_and_courses, Courses) #O(2*num_courses)
 	Professors = sorted(Professors, reverse=True) #(O(num_profs *log(num_profs))

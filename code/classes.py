@@ -98,9 +98,19 @@ class Timeslot(object):
 		self.rooms = list_of_room_objs
 		self.open = len(list_of_room_objs)
 		self.students = {}
+		self.closed_rooms = set() #set of indicies of closed_rooms
 
-	def close_room(self):
+	def open_rooms(self):
+		openRooms = []
+		for i in range(len(self.rooms)):
+			if i not in self.closed_rooms:
+				openRooms.append(self.rooms[i])
+		return openRooms
+
+
+	def close_room(self, index):
 		if (self.open - 1) >= 0:
+			self.closed_rooms.add(index)
 			self.open -= 1
 		else:
 			print("assigned to empty timeslot")
@@ -119,10 +129,11 @@ class Timeslot(object):
 
 class Room(object):
 
-	def __init__(self, name, size):
+	def __init__(self, name, size, resources = []):
 		self.name = name
 		self.size = size
 		self.courses = set()
+		self.resources = resources
 
 	def set_course(self, course):
 		self.courses.add(course)
@@ -154,7 +165,7 @@ class Room(object):
 
 class Course(object):
 
-	def __init__(self, name, department=None):
+	def __init__(self, name, department=None, requirements = []):
 		self.name = name
 		self.prof = None
 		self.popl = 0 #num students that want to take the class
@@ -163,6 +174,7 @@ class Course(object):
 		self.time = None #when course is taught
 		self.room = None #what room class is taught
 		self.department = department #department of the class
+		self.requirements = requirements #a list of resources the course needs in a room to be optimally assigned.
 
 	def increment_popl(self):
 		self.popl += 1
