@@ -71,12 +71,13 @@ class Professor(object):
 
 class Student(object):
 
-	def __init__(self, name, pref_list, major=None): #next_student
+	def __init__(self, name, pref_list, major=None, classYear=None): #next_student
 		self.name = name
 		self.prefs = pref_list #list of four courses by name
 		self.courses_taken = [] #list of enrolled courses (objs)
 		self.enrolled = 0 #number of courses student is enrolled in
 		self.major = major #student major
+		self.classYear = classYear #class year
 
 	# add a course obj to courses list (list of enrolled courses)
 	def enroll_in(self, course_obj):

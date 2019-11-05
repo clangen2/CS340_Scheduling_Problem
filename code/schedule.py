@@ -4,26 +4,28 @@ from obj_init import *
 
 class Schedule():
 	# assigns a course to a timeslot and a room, enrolls students in the course
-	def assignSlot(self, cl, badTime):
+	def assignSlot(self, cl, badTimes):
 		slot = None
 		openRooms = 0
 		compatibility = 0
+		score = 0
 		compatibleStuds = []
 		for time in self.Timeslots:
 			#check if professor is already teaching
-			if time != badTime:
+			if not time in badTimes:
 				#immediately choose a timeslot if it has more open rooms than others checked
 				if time.open > openRooms:
 					openRooms = time.open
-					compatibility,compatibleStuds = self.checkCompatibility(time, cl)
+					compatibility,compatibleStuds,score = self.checkCompatibility(time, cl)
 					slot = time
 					openRooms = time.open
 				#if equal rooms to other times checked, compare compatibility
 				elif time.open == openRooms:
-					newComp,newStuds = self.checkCompatibility(time, cl)
-					if newComp > compatibility:
+					newComp,newStuds,newScore = self.checkCompatibility(time, cl)
+					if newScore > score:
 						compatibility = newComp
 						compatibleStuds = newStuds
+						score = newScore
 						slot = time
 						openRooms = time.open
 		#set timeslot
@@ -31,6 +33,12 @@ class Schedule():
 		cl.set_room(slot.rooms[slot.open - 1])
 		slot.close_room()
 		cl.students = []
+
+
+
+
+
+		#enroll students in the class who do not have conflicts
 		for student in compatibleStuds:
 			conflict = False
 			for j in range(len(self.Students[student - 1].courses_taken)):
@@ -42,18 +50,27 @@ class Schedule():
 				cl.enrollment +=1
 				if self.majorPrefsExt and cl.department == self.Students[student - 1].major:
 					self.majorEnrollment[0] += 1
+				if self.yrPrefsExt:
+					self.classYearEnrollment[0] += self.Students[student - 1].classYear + 1
 
 
 	# generate a list of compatible students
 	def checkCompatibility(self,time, cl):
 		compatibility = 0
+		score = 0
 		compatibleStuds = []
 		for student in cl.students:
 			#check if student is potentially assigned to that timeslot
 			if not time.students[student - 1]:
 				compatibility += 1
+				if self.yrPrefsExt:
+					score += self.Students[student - 1].classYear
+				else:
+					score += 1
 				compatibleStuds.append(student)
-		return compatibility, compatibleStuds
+		return compatibility, compatibleStuds, score
+
+
 
 
 	# main scheduling algorithm
@@ -69,19 +86,24 @@ class Schedule():
 			to enroll in both of that professor's classes.
 		'''
 		#extensions enabled
-		self.majorPrefsExt = True #major preferences
+		self.majorPrefsExt = False #major preferences
+		self.yrPrefsExt = False #class year preferences
 
 		#extension values
 		self.majorEnrollment = [0,0] #how many students were enrolled in major classes and how many students wanted major classes
 
+		self.classYearEnrollment = [0,0] #score of class years where students are valued by their class year
+
 
 		#initialize lists
-		self.Rooms, self.Timeslots, self.Students, self.Courses, self.Professors,self.majorEnrollment[1] = build_all_objs(constraints, student_pref, self.majorPrefsExt)
+		self.Rooms, self.Timeslots, self.Students, self.Courses, self.Professors,self.majorEnrollment[1],self.classYearEnrollment[1] = build_all_objs(constraints, student_pref, self.majorPrefsExt, self.yrPrefsExt)
 
 		for professor in self.Professors:
 			#assign timeslots and rooms for both classes
-			self.assignSlot(professor.cl_1, None)
-			self.assignSlot(professor.cl_2, professor.cl_1.time)
+			badTimes = []
+			self.assignSlot(professor.cl_1, badTimes)
+			badTimes.append(professor.cl_1.time)
+			self.assignSlot(professor.cl_2, badTimes)
 
 		#format output
 		output = []
@@ -106,3 +128,5 @@ class Schedule():
 
 		if self.majorPrefsExt:
 			print("Major Satisfaction: " + str(self.majorEnrollment[0]) + "/" + str(self.majorEnrollment[1]))
+		if self.yrPrefsExt:
+			print("Class Year Satisfaction: " + str(self.classYearEnrollment[0]) + "/" + str(self.classYearEnrollment[1]))

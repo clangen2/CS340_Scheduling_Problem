@@ -90,12 +90,12 @@ def build_student_objs(num_students, list_of_students):
 		pref_list = student_pref_pair[1].split()
 		pref_list = list(map(int, pref_list))
 
-		new_student = Student(student_i, pref_list, random.randint(0,4))
+		new_student = Student(student_i, pref_list, random.randint(0,4), random.randint(0,3))
 		Students.append(new_student)
 	return Students
 
 # given a list of students objects, update course popularities for each object
-def course_popularities(Courses, Students, majorPrefsExt):
+def course_popularities(Courses, Students, majorPrefsExt, yrPrefsExt):
 	majorDesire = 0 #value of total major classes wanted by major students
 	for student in Students:
 		for course in student.prefs: # constant search (only 4 classes)
@@ -107,7 +107,20 @@ def course_popularities(Courses, Students, majorPrefsExt):
 				majorDesire +=1
 			else:
 				Courses[course_num].students.append(student.name) #add student to list
-	return majorDesire
+
+	yearDesire = 0
+	if yrPrefsExt:
+		#use compare sort to sort students by class year
+		for course in Courses:
+			studs = course.students
+			yrs = []
+			for student in course.students:
+				yrs.append(Students[student - 1].classYear)
+				yearDesire += Students[student - 1].classYear + 1
+			zipped_pairs = zip(yrs, studs)
+			sortedStuds = [studs for _, studs in sorted(zipped_pairs, reverse = True)]
+			course.students = sortedStuds
+	return majorDesire,yearDesire
 
 # helper function for parsing during building professor objects
 def process_pairs(list_of_pairs):
@@ -118,7 +131,7 @@ def process_pairs(list_of_pairs):
 	return split_p
 
 # build and initialize all lists required to run the algorithm
-def build_all_objs(constraints_file, preference_file, majorPrefsExt):
+def build_all_objs(constraints_file, preference_file, majorPrefsExt, yrPrefsExt):
 	"""
 	This function does the following things:
 	Create: (1) a list of room objects sorted by size, with name, size attributes full
@@ -153,8 +166,8 @@ def build_all_objs(constraints_file, preference_file, majorPrefsExt):
 	Timeslots = build_ts_objs(num_timeslots,num_students, Rooms) #O(num_timeslots)
 	Students = build_student_objs(num_students, student_prefs) #O(num_students)
 	Courses = build_course_objs(num_courses) #O(num_courses)
-	majorDesire = course_popularities(Courses, Students, majorPrefsExt) #O(num_students)
+	majorDesire,yearDesire = course_popularities(Courses, Students, majorPrefsExt, yrPrefsExt) #O(num_students)
 	Professors = build_prof_objs(num_courses, prof_and_courses, Courses) #O(2*num_courses)
 	Professors = sorted(Professors, reverse=True) #(O(num_profs *log(num_profs))
 
-	return Rooms, Timeslots, Students, Courses, Professors, majorDesire
+	return Rooms, Timeslots, Students, Courses, Professors, majorDesire, yearDesire
