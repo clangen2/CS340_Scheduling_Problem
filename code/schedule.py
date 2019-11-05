@@ -86,8 +86,10 @@ class Schedule():
 						openRooms = time.open
 		#set timeslot
 		cl.set_time(slot)
+
 		available = slot.open_rooms()
 		bestroom = available[-1] #biggest room available at timeslot
+
 		#determine the resousce-bestroom in time slot
 		if self.room_resources:
 			score, room = find_best_room_for_course(cl, available)
@@ -98,8 +100,21 @@ class Schedule():
 
 		bestroom_index = available.index(bestroom)
 		cl.set_room(slot.rooms[bestroom_index])
+
+
 		slot.close_room(bestroom_index)
-		slot.open_rooms()
+		print(slot)
+		print(bestroom)
+		print(cl)
+		print()
+		#if slot.name == 0:
+		#	print(available)
+		#	open= slot.open_rooms()
+		#	print(open)
+		#	print(room)
+		#	print(bestroom)
+		#	print(bestroom_index)
+
 		cl.students = []
 		for student in compatibleStuds:
 			conflict = False
