@@ -155,8 +155,8 @@ class Room(object):
 
 class Course(object):
 
-	def __init__(self, name, department=None):
-		self.name = name
+	def __init__(self, name, num_section = 1, section = 1, department=None):
+		self.name = str(name) #should be a string
 		self.prof = None
 		self.popl = 0 #num students that want to take the class
 		self.students = [] #list of students in the class
@@ -164,6 +164,37 @@ class Course(object):
 		self.time = None #when course is taught
 		self.room = None #what room class is taught
 		self.department = department #department of the class
+		self.section= section
+		self.num_section= num_section
+		self.quorum=0
+		self.popularity_index=0
+
+	def set_popularity_index(self):
+		if self.num_section==1:
+			self.popularity_index=0
+		else:
+			self.popularity_index=1
+	
+	def set_quorum(self):
+		self.quorum=self.prof.cl_2.popl
+
+	def split(self):
+		self.num_section +=1
+		self.popularity_index +=1
+		self.prof.cl_2 = Course(self.name + " B", 2, 2) #reset the prof's 2nd class to be the 2nd section of the class
+		self.prof.cl_2.set_popularity_index()
+		
+	def need_split(self):
+		#check if the course need to split / should only be called after room has been assigned
+		if self.num_section==2:
+			print("already 2 sections, no need to split")
+			return False
+		if self.room:
+			if self.popl> (self.room.size+self.quorum):
+				return True
+			else:
+				return False
+
 
 	def increment_popl(self):
 		self.popl += 1
